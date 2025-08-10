@@ -1,6 +1,323 @@
-# Obfuscated by Py Compile
-# Created by HTR-TECH (https://github.com/htr-tech)
-# Instagram : @tahmid.rayat
+import requests
+from time import sleep
+import urllib.parse
 
-import zlib,base64
-exec(zlib.decompress(base64.b64decode("eJztWk1v2zgQvetXELrUARIZ21NhIAvsLtJTsSi6zWmxEBhpbLOmSJakkDWK/vcOqQ/LUmpbShpXjXSxKA6HM+89DknALFNSW6Lhcw7GmmCpZUYsy4CwosdwABWUjVxzzu4iRbWBIPjzj39u4tsP7xbEWE2uSbi2VpnFfE7TjIlEZRGT8w/bFPRfaypWc6pYGAQJp8YQnRmbp0yi1etFEBB8UliSOGaC2TieGeDLS0KTBIyJN7C9IFe/k7+lgIW3dY8ziWhu17GVGxAYgOtvddcOsHvX8Eb1pCuw7mOcUkv9xH4yKra7uTBjmhn08YWEaBouOu6/1rYajJLCAFpXsEY4xWwZfqkQ+zpvzhlelv6vi5+Ljqs4hUSmkHqXxafok5Fi1jS1uRadETtouVwxUeIKGWXczWrMvdSpz5cJ28x3yyVNi4QxS5kLG/tRmHo5uv5eucGu6rUBx2OhU9K0sKvm9Rm1wbskDtLrMoFBULJlx9oTGMpNeLHD6GENPjzSmYRHySpsQWup0XhE+oxAYAJMrNDnq9wur968ekoNV/01IhpWzFjQTyfnIgOYldFfHJZ323qg3K3e7supn/4rFE5dAqcy1pM1+D8BZcmtYM7yxiNz4zS8n5vSSMksvKnm9TIn98yuye3Ht1dvIvKeA8XckzUkG7KVuUYSVW6jsJ2CV8nVb8HA9ZS43QgK/ksFCbgv2o31XTopvmP+zc0vysXnXFqY7QYeFpsvAIt2vUCV1Q6wd3/GH1lCmxA8ZwV12frM+xfSfxuD/zuNeVevO7RXa7jBfF04jlSMgyQ2ykSz2YfGkz31Irl290J4ToEDrky/UQ4i9Omq+dESXsR6KjPPUWn3Th2K0y3owwePM8B6ivhd+A8dXl7G5rh3Ezp6NTA7qjUVmx3Vd1LyEXDt4neBv0yu31JujpL9UKFs0J6hXrbVpTtzxB7mfy+OY/tjy9i7R7Pipe58dsX4nCfJDJWMoBlUZyh8fVy9cCcfdOJOPPhz3uuVy9EHM0njFGm0zl2VPJaagUjN6PaSMosy/EkDvcpDLrhMNrGSnCUwOur3op+Y73e5lpnyCydjxjC0Hh37nQwmBQxZ+xTBshkIOz4FdDKYFDBEAXeabmC07BfRT8wPYf5+DcBHy3wR/cT8EOYTLu16vIseDZiaSv5j6f8F+J8EMEwAlDMFerQCmHb94dwrykZ82i+in5gfdNcTLKMW78pjJb9OYOJ/EP+cY+XXJjZMwxlF0I/zvaB/wJ8iJhyfC8fKso2nwePoGTekXjD6WM+BHvkufI5ZkxsFwpy1tveW4y7on0qObpWMBEUX6lnE2IRuwvAxGHYhZOITJDZOcmNl5sL72YHsBHxOSX7/+QYVYOJt")))
+BASE_URL: str = "https://admincpm.io/RyderChang/api"
+
+class Emritz:
+
+    def __init__(self, access_key) -> None:
+        self.auth_token = None
+        self.access_key = access_key
+    
+    def get_key_data(self) -> any:
+        params = { "key": self.access_key }
+        response = requests.get(f"{BASE_URL}/get_key_data", params=params)
+        response_decoded = response.json()
+        return response_decoded
+
+    def login(self, email, password) -> int:
+        payload = { "account_email": email, "account_password": password }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/account_login", params=params, data=payload)
+        response_decoded = response.json()
+        if response_decoded.get("ok"):
+            self.auth_token = response_decoded.get("auth")
+        return response_decoded.get("error")
+
+    def get_key_data(self) -> any:
+        params = { "key": self.access_key }
+        response = requests.get(f"{BASE_URL}/get_key_data", params=params)
+        response.encoding = 'utf-8'
+        response_decoded = response.json()
+        return response_decoded
+        
+    def register(self, email, password) -> int:
+        payload = { "account_email": email.encode('utf-8'), "account_password": password.encode('utf-8') }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/account_register", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return -1
+
+        return response_decoded.get("error")
+
+    def change_email(self, new_email):
+        decoded_email = urllib.parse.unquote(new_email)
+        payload = { "account_auth": self.auth_token, "new_email": decoded_email }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/change_email", params=params, data=payload)
+        response_decoded = response.json()
+        if response_decoded.get("new_token"):
+            self.auth_token = response_decoded["new_token"]
+        return response_decoded.get("ok")
+
+    def change_password(self, new_password):
+        payload = { "account_auth": self.auth_token, "new_password": new_password }
+        params = { "key": self.access_key, "new_password": new_password }
+        response = requests.post(f"{BASE_URL}/change_password", params=params, data=payload)
+        response_decoded = response.json()
+        if response_decoded.get("new_token"):
+            self.auth_token = response_decoded["new_token"]
+        return response_decoded.get("ok")
+
+    def delete(self):
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            requests.post(f"{BASE_URL}/account_delete", params=params, data=payload)
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+
+    def get_player_data(self) -> any:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/get_data", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return None
+        return response_decoded
+
+    def set_player_rank(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/set_rank", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def set_player_money(self, amount) -> bool:
+        payload = {
+            "account_auth": self.auth_token,
+            "amount": amount
+        }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/set_money", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def set_player_name(self, name) -> bool:
+        payload = { "account_auth": self.auth_token, "name": name.encode('utf-8') }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/set_name", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+
+    def delete_player_friends(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/delete_friends", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_police(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_police", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def complete_missions(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/complete_missions", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_apartments(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_apartments", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_brakes(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_brakes", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_wheels(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_wheels", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_clothes(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_equipments", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_clothess(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_equipmentss", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_calipers(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_brakes", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_paints(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_paints", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_animation(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        try:
+            response = requests.post(f"{BASE_URL}/unlock_animation", params=params, data=payload)
+            response.encoding = 'utf-8'
+            response_decoded = response.json()
+        except UnicodeEncodeError:
+            print("Encoding error with UTF-8. Please check your input.")
+            return False
+        return response_decoded.get("ok")
+
+    def unlock_all_cars_siren(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_all_cars_siren", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")
+
+    def unlock_all_cars_siren(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_all_cars_siren", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")
+        
+    def unlock_slots(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_slots", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok") 
+        
+    def unlock_all_suspension(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_all_suspension", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")
+        
+    def unlock_all_flags(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_all_flags", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")        
+        
+    def unlock_all_police_bodykits(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_all_police_bodykits", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")                
+        
+    def unlock_slots_1000(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/unlock_slots_1000", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")                       
+        
+    def king_and_daily_rewards(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/king_and_daily_rewards", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")  
+        
+    def generate_localid(self) -> bool:
+        payload = { "account_auth": self.auth_token }
+        params = { "key": self.access_key }
+        response = requests.post(f"{BASE_URL}/generate_localid", params=params, data=payload)
+        response_decoded = response.json()
+        return response_decoded.get("ok")          
+                  
+        
+                                          
